@@ -1,28 +1,25 @@
 class Solution {
 public:
-    int fun(int ind, int t, vector<int> &arr,vector<vector<int>>&dp)
+    int change(int amount, vector<int> &coins)
 {
-    if (ind == 0)
-    {
-        return (t % arr[0] == 0);
-    }
-    if(dp[ind][t]!=-1) return dp[ind][t];
-    int nottake = fun(ind - 1, t, arr,dp);
-    int take = 0;
-    if (arr[ind] <= t)
-        take = fun(ind, t - arr[ind], arr,dp);
-    return dp[ind][t] = take + nottake;
-}
-int change(int amount, vector<int> &coins)
-{
+    const long long CAP = 2'000'000'000LL;
     int n = coins.size();
-    vector<vector<int>>dp(n+1);
-    for (int i = 0; i <= n; i++)
-    {
-        vector<int> t(amount+1, -1);
-        dp[i] = t;
-    }
-    return fun(n - 1, amount, coins,dp);
-}
+    vector<vector<long long>> dp(n, vector<long long>(amount + 1, 0));
 
+    for (int t = 0; t <= amount; t++)
+        dp[0][t] = (t % coins[0] == 0);
+
+    for (int ind = 1; ind < n; ind++)
+    {
+        for (int t = 0; t <= amount; t++)
+        {
+            long long nottake = dp[ind - 1][t];
+            long long take = 0;
+            if (coins[ind] <= t)
+                take = dp[ind][t - coins[ind]];
+            dp[ind][t] = min(take + nottake, CAP);   // clamp here
+        }
+    }
+    return (int)dp[n - 1][amount];
+}
 };
