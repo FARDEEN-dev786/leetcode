@@ -4,37 +4,47 @@ public:
 {
     int n = prices.size();
     int k = 2;
+    int i, j, flag;
     vector<vector<vector<int>>> dp(n + 1);
     for (int i = 0; i <= n; i++)
     {
-        vector<vector<int>> t(k + 1, vector<int>(2,-1));
+        vector<vector<int>> t(k + 1, vector<int>(2, -1));
         dp[i] = t;
     }
-    int gain = fun(prices, n, 0, k, dp,0);
-    return gain;
-}
-
-int fun(vector<int> &a, int n, int i, int k, vector<vector<vector<int>>> &dp,int flag)
-{
-    if (i == n)
-        return 0;
-    if (k == 0)
-        return 0;
-    if(flag==1) return dp[i][k][flag]= fun(a,n,i+1,k,dp,0);
-    if (dp[i][k][flag] != -1)
-        return dp[i][k][flag];
-
-    if (k == 2)
+    for (i = 0; i <= n; i++)
     {
-        int c1 = fun(a, n, i + 1, k - 1, dp,0) - a[i];
-        int c2 = fun(a, n, i + 1, k, dp,0);
-        return dp[i][k][flag] = max(c1, c2);
+        dp[i][0][0] = 0;
+        dp[i][0][1] = 0;
     }
-    else
+    for (j = 0; j <= k; j++)
     {
-        int c1 = fun(a, n, i + 1, 2, dp,1) + a[i];
-        int c2 = fun(a, n, i + 1, k, dp,0);
-        return dp[i][k][flag] = max(c1, c2);
+        dp[n][j][0] = 0;
+        dp[n][j][1] = 0;
     }
+
+    for (i = n - 1; i >= 0; i--)
+    {
+        for (j = 1; j <= k; j++)
+        {
+            for (int flag = 0; flag <= 1; flag++)
+            {
+                if (flag == 1)
+                    dp[i][j][flag] = dp[i + 1][j][0];
+                else if (j == 2)
+                {
+                    int c1 = dp[i + 1][j - 1][0] - prices[i];
+                    int c2 = dp[i + 1][j][0];
+                    dp[i][j][flag] = max(c1, c2);
+                }
+                else
+                {
+                    int c1 = dp[i + 1][2][1] + prices[i];
+                    int c2 = dp[i + 1][j][0];
+                    dp[i][j][flag] = max(c1, c2);
+                }
+            }
+        }
+    }
+    return dp[0][2][0];
 }
 };
