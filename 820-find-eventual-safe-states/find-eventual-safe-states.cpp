@@ -1,35 +1,51 @@
 class Solution {
 public:
 vector<int> eventualSafeNodes(vector<vector<int>>& graph) {
-    vector<bool>path(graph.size());
-    vector<int>ans;
-    for(int i = 0;i<graph.size();i++){
-        vector<bool>vis(graph.size(),0);
-        bool cycle= false;
-        dfs(graph,i,path,vis,cycle);
-        if(cycle==false){
-            ans.push_back(i);
+    int n = graph.size();
+    vector<vector<int>> revgraph(graph.size());
+    vector<int>indegree(n,0);
+    for (int i = 0; i < graph.size(); i++)
+    {
+        indegree[i] = graph[i].size();
+        for (int j = 0; j < graph[i].size(); j++)
+        {
+            revgraph[graph[i][j]].push_back(i);
+            
         }
     }
-    sort(ans.begin(),ans.end());
+    vector<int> ans = topoSort(n,revgraph,indegree);
+    sort(ans.begin(), ans.end());
     return ans;
 }
-void dfs(vector<vector<int>>&a,int node, vector<bool>&path,vector<bool>&vis,bool&cycle){
-    if(cycle) return;
-    vis[node]=1;
-    path[node]=1;
-    for(int j =0; j<a[node].size(); j++){
-        int neigh = a[node][j];
-        if(vis[neigh]==1&& path[neigh]==1) {
-            cycle=1;
-            return;
-        }
 
-        if(vis[neigh]==0){
-            dfs(a,neigh,path,vis,cycle);
+vector<int> topoSort(int V, vector<vector<int>>& edges,vector<int>&indegree) {
+        // code here
+    int i;
+    queue<int> q;
+    for(i=0;i<V;i++)
+    {
+        if(indegree[i]==0)
+        {
+            q.push(i);
         }
     }
-    path[node]=0;
-    return;
+    vector<int> result;
+
+    while(!q.empty())
+    {
+        int node = q.front();
+        q.pop();
+        result.push_back(node);
+        for(int j=0;j<edges[node].size();j++)
+        {
+            int neigh = edges[node][j];
+            indegree[neigh]--;
+            if(indegree[neigh]==0)
+            {
+                q.push(neigh);
+            }
+        }
+    }
+    return result;
 }
 };
